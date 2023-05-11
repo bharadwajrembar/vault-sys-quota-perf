@@ -1,4 +1,4 @@
-module vault-quota
+module vault-sys-quota-perf
 
 go 1.20
 
