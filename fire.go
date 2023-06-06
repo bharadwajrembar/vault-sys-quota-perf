@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	vegeta "github.com/tsenart/vegeta/v12/lib"
 )
 
 const (
-	BaseURL              = "http://localhost:8200"
+	BaseURL              = "http://localhost:8204"
 	X_VAULT_TOKEN_HEADER = "X-VAULT-TOKEN"
 )
 
@@ -17,40 +18,28 @@ type Endpoints struct {
 	Method  string
 	URL     string
 	Headers http.Header
+	Body    []byte
 }
 
 var (
-	vaultToken   = "<vault-token>"
-	vault_header = http.Header{
+	vaultToken  = os.Getenv("VAULT_TOKEN")
+	vaultHeader = http.Header{
 		X_VAULT_TOKEN_HEADER: {vaultToken},
-	}
-	vaultTargets = []Endpoints{
-		{
-			Method: "GET",
-			URL:    fmt.Sprintf("%s/v1/secret/data/app/jaw-service", BaseURL),
-		},
 	}
 )
 
 func main() {
-	rate := vegeta.Rate{Freq: 20, Per: 10 * time.Second}
+	rate := vegeta.Rate{Freq: 20, Per: 1 * time.Second}
 	duration := 10 * time.Second
-	for _, vaultTarget := range vaultTargets {
-		targeter := vegeta.NewStaticTargeter(vegeta.Target{
-			Method: vaultTarget.Method,
-			URL:    vaultTarget.URL,
-			Header: vault_header,
-		})
-		attacker := vegeta.NewAttacker()
 
-		var metrics vegeta.Metrics
-		for res := range attacker.Attack(targeter, rate, duration, "Big Bang!") {
-			fmt.Println(res.URL, res.Code, res.Error, res.Latency)
-			metrics.Add(res)
-		}
-		metrics.Close()
-
-		fmt.Printf("99th percentile: %s\n", metrics.Latencies.P99)
+	kvMetrics := kvPerf(rate, duration)
+	if len(kvMetrics.Errors) != 0 {
+		fmt.Printf("Errors when attacking: %s\n", kvMetrics.Errors)
 	}
+
+	fmt.Printf("Success for KV calls: %f\n", kvMetrics.Success*100)
+	fmt.Printf("90th percentile for KV calls: %s\n", kvMetrics.Latencies.P90)
+	fmt.Printf("95th percentile for KV calls: %s\n", kvMetrics.Latencies.P95)
+	fmt.Printf("99th percentile for KV calls: %s\n", kvMetrics.Latencies.P99)
 
 }
