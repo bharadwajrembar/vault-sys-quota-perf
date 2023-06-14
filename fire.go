@@ -25,7 +25,7 @@ type Endpoints struct {
 func initViper() {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("vault-perf-test.yaml")
-	viper.AddConfigPath("config/")
+	viper.AddConfigPath("/home/ubuntu/config/")
 	viper.AutomaticEnv()
 	err := viper.ReadInConfig()
 	if err != nil {
