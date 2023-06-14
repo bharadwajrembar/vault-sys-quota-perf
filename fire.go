@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"os"
-	"time"
-
+	"github.com/spf13/viper"
 	vegeta "github.com/tsenart/vegeta/v12/lib"
+	"net/http"
+	"time"
 )
 
 const (
@@ -24,16 +23,35 @@ type Endpoints struct {
 }
 
 var (
-	BaseURL     = os.Getenv("VAULT_URL")
-	vaultToken  = os.Getenv("VAULT_TOKEN")
-	vaultHeader = http.Header{
-		X_VAULT_TOKEN_HEADER: {vaultToken},
-	}
+	BaseURL, vaultToken string
+	VaultHeader         http.Header
 )
 
+func initViper() {
+	viper.SetConfigType("yaml")
+	viper.SetConfigName("vault-perf-test.yaml")
+	viper.AddConfigPath("config/")
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
 func main() {
-	rate := vegeta.Rate{Freq: 400, Per: 1 * time.Second}
-	duration := 10 * time.Second
+	initViper()
+
+	BaseURL = viper.GetString("VAULT_URL")
+	vaultToken = viper.GetString("VAULT_TOKEN")
+	VaultHeader = http.Header{
+		X_VAULT_TOKEN_HEADER: {vaultToken},
+	}
+	frequency := viper.GetInt("FREQUENCY")
+	timeInterval := viper.GetInt("TIME_INTERVAL")
+	timeDuration := viper.GetInt("TIME_DURATION")
+
+	rate := vegeta.Rate{Freq: frequency, Per: time.Duration(timeInterval) * time.Second}
+	duration := time.Duration(timeDuration) * time.Second
 
 	// KV perf metrics
 	kvMetrics := kvPerf(rate, duration)

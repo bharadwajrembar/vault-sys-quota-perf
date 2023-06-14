@@ -36,7 +36,7 @@ var (
 		},
 		{
 			Method: "POST",
-			URL:    fmt.Sprintf("%s/v1/secret/data/vault-perf-test", BaseURL),
+			URL:    fmt.Sprintf("%s/v1/secret/data/vault-perf-test.yaml", BaseURL),
 			Body:   []byte(KvData),
 		},
 	}
@@ -48,7 +48,7 @@ func kvPerf(rate vegeta.Rate, duration time.Duration) *vegeta.Metrics {
 		targeter := vegeta.NewStaticTargeter(vegeta.Target{
 			Method: vaultTarget.Method,
 			URL:    vaultTarget.URL,
-			Header: vaultHeader,
+			Header: VaultHeader,
 			Body:   vaultTarget.Body,
 		})
 		attacker := vegeta.NewAttacker()

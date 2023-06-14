@@ -28,7 +28,7 @@ func transitPerf(rate vegeta.Rate, duration time.Duration) *vegeta.Metrics {
 		targeter := vegeta.NewStaticTargeter(vegeta.Target{
 			Method: vaultTarget.Method,
 			URL:    vaultTarget.URL,
-			Header: vaultHeader,
+			Header: VaultHeader,
 			Body:   vaultTarget.Body,
 		})
 		attacker := vegeta.NewAttacker()
