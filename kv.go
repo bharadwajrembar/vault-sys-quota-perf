@@ -15,9 +15,29 @@ var (
 			Body:   []byte(""),
 		},
 		{
+			Method: "GET",
+			URL:    fmt.Sprintf("%s/v1/secret/data/cloudhub-kv/01fdf72b-3302-4e51-8fa0-37f89d3e77ee", BaseURL),
+			Body:   []byte(""),
+		},
+		{
+			Method: "GET",
+			URL:    fmt.Sprintf("%s/v1/secret/data/app/common-cg-service-multi-cluster", BaseURL),
+			Body:   []byte(""),
+		},
+		{
+			Method: "GET",
+			URL:    fmt.Sprintf("%s/v1/secret/data/app/common-core-service", BaseURL),
+			Body:   []byte(""),
+		},
+		{
+			Method: "GET",
+			URL:    fmt.Sprintf("%s/v1/secret/data/app/common-auth-flow-service", BaseURL),
+			Body:   []byte(""),
+		},
+		{
 			Method: "POST",
 			URL:    fmt.Sprintf("%s/v1/secret/data/vault-perf-test", BaseURL),
-			Body:   []byte(`{"data":{"test_1": "test"}}`),
+			Body:   []byte(KvData),
 		},
 	}
 )
