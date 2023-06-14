@@ -22,11 +22,6 @@ type Endpoints struct {
 	Body    []byte
 }
 
-var (
-	BaseURL, vaultToken string
-	VaultHeader         http.Header
-)
-
 func initViper() {
 	viper.SetConfigType("yaml")
 	viper.SetConfigName("vault-perf-test.yaml")
@@ -40,10 +35,9 @@ func initViper() {
 
 func main() {
 	initViper()
-
-	BaseURL = viper.GetString("VAULT_URL")
-	vaultToken = viper.GetString("VAULT_TOKEN")
-	VaultHeader = http.Header{
+	BaseURL := viper.GetString("VAULT_URL")
+	vaultToken := viper.GetString("VAULT_TOKEN")
+	VaultHeader := http.Header{
 		X_VAULT_TOKEN_HEADER: {vaultToken},
 	}
 	frequency := viper.GetInt("FREQUENCY")
@@ -54,7 +48,7 @@ func main() {
 	duration := time.Duration(timeDuration) * time.Second
 
 	// KV perf metrics
-	kvMetrics := kvPerf(rate, duration)
+	kvMetrics := kvPerf(rate, duration, BaseURL, VaultHeader)
 	if len(kvMetrics.Errors) != 0 {
 		fmt.Printf("Errors when attacking: %s\n", kvMetrics.Errors)
 	}
@@ -65,7 +59,7 @@ func main() {
 	fmt.Printf("99th percentile for KV calls: %s\n", kvMetrics.Latencies.P99)
 
 	// Transit perf metrics
-	transitMetrics := transitPerf(rate, duration)
+	transitMetrics := transitPerf(rate, duration, BaseURL, VaultHeader)
 	if len(transitMetrics.Errors) != 0 {
 		fmt.Printf("Errors when attacking: %s\n", transitMetrics.Errors)
 	}
@@ -76,7 +70,7 @@ func main() {
 	fmt.Printf("99th percentile for transit calls: %s\n", transitMetrics.Latencies.P99)
 
 	// Policy perf metrics
-	policyMetrics := policyPerf(rate, duration)
+	policyMetrics := policyPerf(rate, duration, BaseURL, VaultHeader)
 	if len(policyMetrics.Errors) != 0 {
 		fmt.Printf("Errors when attacking: %s\n", policyMetrics.Errors)
 	}

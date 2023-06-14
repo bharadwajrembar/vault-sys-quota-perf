@@ -3,26 +3,27 @@ package main
 import (
 	"fmt"
 	vegeta "github.com/tsenart/vegeta/v12/lib"
+	"net/http"
 	"time"
 )
 
-var (
-	transitPerfMetrics  vegeta.Metrics
-	vaultTransitTargets = []Endpoints{
-		{
-			Method: "POST",
-			URL:    fmt.Sprintf("%s/v1/transit/encrypt/test", BaseURL),
-			Body:   []byte(transitEncryptData),
-		},
-		{
-			Method: "POST",
-			URL:    fmt.Sprintf("%s/v1/transit/decrypt/test", BaseURL),
-			Body:   []byte(transitDecryptData),
-		},
-	}
-)
+func transitPerf(rate vegeta.Rate, duration time.Duration, BaseURL string, VaultHeader http.Header) *vegeta.Metrics {
 
-func transitPerf(rate vegeta.Rate, duration time.Duration) *vegeta.Metrics {
+	var (
+		transitPerfMetrics  vegeta.Metrics
+		vaultTransitTargets = []Endpoints{
+			{
+				Method: "POST",
+				URL:    fmt.Sprintf("%s/v1/transit/encrypt/test", BaseURL),
+				Body:   []byte(transitEncryptData),
+			},
+			{
+				Method: "POST",
+				URL:    fmt.Sprintf("%s/v1/transit/decrypt/test", BaseURL),
+				Body:   []byte(transitDecryptData),
+			},
+		}
+	)
 
 	for _, vaultTarget := range vaultTransitTargets {
 		targeter := vegeta.NewStaticTargeter(vegeta.Target{

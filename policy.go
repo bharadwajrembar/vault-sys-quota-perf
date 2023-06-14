@@ -3,21 +3,22 @@ package main
 import (
 	"fmt"
 	vegeta "github.com/tsenart/vegeta/v12/lib"
+	"net/http"
 	"time"
 )
 
-var (
-	policyPerfMetrics  vegeta.Metrics
-	vaultPolicyTargets = []Endpoints{
-		{
-			Method: "GET",
-			URL:    fmt.Sprintf("%s/v1/sys/policy/read-only", BaseURL),
-			Body:   []byte(""),
-		},
-	}
-)
+func policyPerf(rate vegeta.Rate, duration time.Duration, BaseURL string, VaultHeader http.Header) *vegeta.Metrics {
 
-func policyPerf(rate vegeta.Rate, duration time.Duration) *vegeta.Metrics {
+	var (
+		policyPerfMetrics  vegeta.Metrics
+		vaultPolicyTargets = []Endpoints{
+			{
+				Method: "GET",
+				URL:    fmt.Sprintf("%s/v1/sys/policy/read-only", BaseURL),
+				Body:   []byte(""),
+			},
+		}
+	)
 
 	for _, vaultTarget := range vaultPolicyTargets {
 		targeter := vegeta.NewStaticTargeter(vegeta.Target{
